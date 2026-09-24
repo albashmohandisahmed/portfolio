@@ -1,0 +1,144 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /MediaBox [0 0 612 792] /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+6 0 obj
+<< /Length 2200 >>
+stream
+BT
+/F1 22 Tf
+50 740 Td
+(Ahmed Mohamed Abd El Hamid) Tj
+0 -24 Td
+/F2 12 Tf
+(Data Analyst & Business Intelligence Specialist) Tj
+0 -18 Td
+(Cairo, Egypt  |  albashmohandisahmed@gmail.com  |  +20 1009480722) Tj
+0 -14 Td
+(LinkedIn: linkedin.com/in/ahmed-mohamed-abd-el-hamid-ali  |  GitHub: github.com/albashmohandisahmed) Tj
+0 -24 Td
+0.0 0.8 1.0 rg
+0 -2 Td
+/F1 14 Tf
+(EXECUTIVE SUMMARY) Tj
+0 -18 Td
+/F2 10 Tf
+0 0 0 rg
+(Computer Science Honors Graduate (GPA 3.4) specializing in Business Intelligence, Power BI, DAX,) Tj
+0 -14 Td
+(Tableau, SQL Server, Excel Power Query, and Python EDA. Certified by Google, Microsoft, and IBM.) Tj
+0 -24 Td
+/F1 14 Tf
+0.0 0.8 1.0 rg
+(TECHNICAL STACK & CORE SKILLS) Tj
+0 -18 Td
+/F2 10 Tf
+0 0 0 rg
+(- Business Intelligence: Power BI, DAX (Data Analysis Expressions), Tableau, Excel Power Tools) Tj
+0 -14 Td
+(- Querying & ETL: SQL (SQL Server / MySQL), Power Query, Dimensional Data Modeling (Star Schema)) Tj
+0 -14 Td
+(- Python & Science: Python, Pandas, NumPy, Matplotlib, Seaborn, Plotly, Scikit-learn (ML Fundamentals)) Tj
+0 -14 Td
+(- Domain Expertise: Exploratory Data Analysis (EDA), KPI Reporting, Stakeholder Communication) Tj
+0 -24 Td
+/F1 14 Tf
+0.0 0.8 1.0 rg
+(VERIFIED BI PROJECTS & CASE STUDIES) Tj
+0 -18 Td
+/F1 11 Tf
+0 0 0 rg
+(1. Super Market Retail Analytics Dashboard (Power BI, DAX, Power Query)) Tj
+0 -14 Td
+/F2 10 Tf
+(   - Modeled retail sales, cost, gross margin, product returns, and store efficiency.) Tj
+0 -14 Td
+(   - Created multi-level executive drill-through pages for store, customer, and product performance.) Tj
+0 -18 Td
+/F1 11 Tf
+(2. Electrical Shop Business Analysis Dashboard (Power BI, DAX, Cash Flow)) Tj
+0 -14 Td
+/F2 10 Tf
+(   - Modeled sales, inventory value, stock transfers, shortages, revenue, cash inflow, and bank records.) Tj
+0 -18 Td
+/F1 11 Tf
+(3. Baladna Production & Distribution Dashboard (Power BI, Operations)) Tj
+0 -14 Td
+/F2 10 Tf
+(   - Reported 839M total sales qty, 690M production qty, 43M distribution qty, and target progress.) Tj
+0 -18 Td
+/F1 11 Tf
+(4. Services Revenue Analytics Dashboard (Power BI, DAX)) Tj
+0 -14 Td
+/F2 10 Tf
+(   - Engineered KPIs for total revenue, service volume, hours, active clients, and branch splits.) Tj
+0 -18 Td
+/F1 11 Tf
+(5. Salla Call Center Performance Dashboard (Power BI, DAX, SLA Monitoring)) Tj
+0 -14 Td
+/F2 10 Tf
+(   - Processed 1.74M offered calls across 16 agents; reported 91.06% SLA and 1.32% abandonment.) Tj
+0 -18 Td
+/F1 11 Tf
+(6. MDb Movies Financial & Audience Dashboard (Power BI, DAX)) Tj
+0 -14 Td
+/F2 10 Tf
+(   - Analyzed 528.25bn revenue, 170.52bn budget, 357.73bn profit (209.79% ROI), and genre splits.) Tj
+0 -18 Td
+/F1 11 Tf
+(7. HR Attrition & Workforce Planning Dashboard (Tableau, HR Analytics)) Tj
+0 -14 Td
+/F2 10 Tf
+(   - Analyzed 1,480 employees and 238 departures; reported 16.08% overall attrition and 35.77% in 18-25 group.) Tj
+0 -18 Td
+/F1 11 Tf
+(8. Misuo Sales & Delivery Dashboard (Excel Power Query, Pivot Tables)) Tj
+0 -14 Td
+/F2 10 Tf
+(   - Analyzed 1,100,228 sales across 109 orders; calculated 10,478 avg price and 69.72% on-time delivery.) Tj
+0 -24 Td
+/F1 14 Tf
+0.0 0.8 1.0 rg
+(EDUCATION & CERTIFICATIONS) Tj
+0 -18 Td
+/F1 11 Tf
+0 0 0 rg
+(Bachelor of Computer Science - Honors  |  GPA: 3.4 / 4.0 (2019 - 2023)) Tj
+0 -14 Td
+/F2 10 Tf
+(Faculty of Computer and Artificial Intelligence) Tj
+0 -16 Td
+(- Google Data Analytics Professional Certificate  |  - Google Advanced Data Analytics) Tj
+0 -14 Td
+(- IBM Data Analyst Professional Certificate  |  - Microsoft Power BI Data Analyst) Tj
+0 -14 Td
+(- Data Analysis with Excel Power Tools (DataCamp)  |  - Professional Data Analyst Diploma) Tj
+ET
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f
+0000000009 00000 n
+0000000058 00000 n
+0000000115 00000 n
+0000000244 00000 n
+0000000319 00000 n
+0000000389 00000 n
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+2650
+%%EOF

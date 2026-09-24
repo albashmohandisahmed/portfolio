@@ -1,0 +1,482 @@
+<script>
+  const root = document.getElementById('app');
+  let token = localStorage.getItem('delish_token') || '';
+  let currentUser = JSON.parse(localStorage.getItem('delish_user') || 'null');
+  let appState = null;
+  let activePage = 'dashboard';
+  let currentOrder = null;
+
+  const ORDER_STATUSES = ['جديد','قيد المتابعة','بانتظار التأكيد','مثبت','قيد التجهيز','جاهز','تم التسليم','ملغي'];
+  const PAYMENT_STATUSES = ['غير مدفوع','مدفوع جزئيًا','مدفوع بالكامل'];
+  const PAYMENT_METHODS = ['Cash','Click','PayPal','Western Union','Bank Transfer','Other'];
+  const ORDER_TYPES = ['كيكة','ميني كيك','بوكس','أخرى'];
+  const DELIVERY_TYPES = ['توصيل','استلام'];
+  const ROLES = ['Admin','Social Media Employee','Sales Employee'];
+
+  init();
+
+  function init() {
+    if (!window.google || !google.script || !google.script.run) {
+      renderLocalPreview();
+      return;
+    }
+    call('getAppState').then(function (state) {
+      appState = state;
+      if (state.setupRequired) {
+        renderAdminSetup();
+        return;
+      }
+      if (!token || !currentUser) {
+        renderLogin();
+        return;
+      }
+      call('getCurrentUser', token).then(function (user) {
+        currentUser = user;
+        localStorage.setItem('delish_user', JSON.stringify(user));
+        renderApp();
+      }).catch(function () {
+        token = '';
+        currentUser = null;
+        localStorage.removeItem('delish_token');
+        localStorage.removeItem('delish_user');
+        renderLogin();
+      });
+    }).catch(renderFatal);
+  }
+
+  function call(name) {
+    const args = Array.prototype.slice.call(arguments, 1);
+    return new Promise(function (resolve, reject) {
+      const runner = google.script.run
+        .withSuccessHandler(resolve)
+        .withFailureHandler(function (error) {
+          reject(error && error.message ? new Error(error.message) : error);
+        });
+      runner[name].apply(runner, args);
+    });
+  }
+
+  function renderAdminSetup() {
+    root.innerHTML = `
+      <section class="loginScreen">
+        <div class="loginBox">
+          <h1>Delish Cake</h1>
+          <p class="muted">أول تشغيل للنظام. أنشئ كلمة مرور المدير الأساسية.</p>
+          <div class="field"><label>Username</label><input value="admin" disabled></div>
+          <div class="field"><label>كلمة مرور المدير</label><input id="adminPassword" type="password" autocomplete="new-password"></div>
+          <div class="actions"><button class="primary" onclick="setupAdmin()">حفظ وبدء النظام</button></div>
+          <p id="loginMessage" class="muted"></p>
+        </div>
+      </section>`;
+  }
+
+  function setupAdmin() {
+    const password = document.getElementById('adminPassword').value;
+    call('initializeAdmin', password).then(function () {
+      toast('تم إعداد المدير. سجّل الدخول الآن.');
+      renderLogin();
+    }).catch(showLoginError);
+  }
+
+  function renderLogin() {
+    root.innerHTML = `
+      <section class="loginScreen">
+        <div class="loginBox">
+          <h1>Delish Cake</h1>
+          <p class="muted">نظام إدارة الطلبات والمتابعة الداخلية.</p>
+          <div class="field"><label>اسم المستخدم</label><input id="username" autocomplete="username"></div>
+          <div class="field"><label>كلمة المرور</label><input id="password" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')loginUi()"></div>
+          <div class="actions"><button class="primary" onclick="loginUi()">دخول</button></div>
+          <p id="loginMessage" class="muted"></p>
+        </div>
+      </section>`;
+  }
+
+  function loginUi() {
+    call('login', value('username'), value('password')).then(function (result) {
+      token = result.token;
+      currentUser = result.user;
+      localStorage.setItem('delish_token', token);
+      localStorage.setItem('delish_user', JSON.stringify(currentUser));
+      renderApp();
+    }).catch(showLoginError);
+  }
+
+  function showLoginError(error) {
+    document.getElementById('loginMessage').textContent = error.message || String(error);
+  }
+
+  function renderApp() {
+    const adminLinks = currentUser.role === 'Admin' ? `
+      <button data-page="employees" onclick="showPage('employees')">الموظفون</button>
+      <button data-page="reports" onclick="showPage('reports')">التقارير</button>
+      <button data-page="audit" onclick="showPage('audit')">AuditLog</button>
+      <button data-page="settings" onclick="showPage('settings')">Settings</button>` : '';
+
+    root.innerHTML = `
+      <div class="appShell">
+        <aside class="sidebar">
+          <div class="brand"><strong>Delish Cake</strong><span>${escapeHtml(currentUser.employeeName)} · ${escapeHtml(currentUser.role)}</span></div>
+          <nav class="nav">
+            <button data-page="dashboard" onclick="showPage('dashboard')">Dashboard</button>
+            <button data-page="orders" onclick="showPage('orders')">Orders</button>
+            <button data-page="calendar" onclick="showPage('calendar')">Calendar</button>
+            ${adminLinks}
+            <button onclick="logoutUi()">خروج</button>
+          </nav>
+        </aside>
+        <section class="content">
+          <div id="page"></div>
+        </section>
+      </div>
+      <div id="modal" class="modal"></div>`;
+    showPage(activePage || 'dashboard');
+  }
+
+  function showPage(page) {
+    activePage = page;
+    document.querySelectorAll('.nav button[data-page]').forEach(function (button) {
+      button.classList.toggle('active', button.dataset.page === page);
+    });
+    if (page === 'dashboard') return renderDashboard();
+    if (page === 'orders') return renderOrders();
+    if (page === 'calendar') return renderCalendar();
+    if (page === 'employees') return renderEmployees();
+    if (page === 'reports') return renderReports();
+    if (page === 'audit') return renderAudit();
+    if (page === 'settings') return renderSettings();
+  }
+
+  function renderDashboard() {
+    const createButton = currentUser.role === 'Sales Employee' ? '' : '<button class="primary" onclick="openOrderModal()">+ طلب جديد</button>';
+    setPage(`<div class="topbar"><h1>Dashboard</h1>${createButton}</div><div id="dashboardBody"></div>`);
+    call('getDashboard', token).then(function (data) {
+      const statusCards = ORDER_STATUSES.map(function (status) {
+        return `<div class="card"><div class="cardLabel">${status}</div><div class="cardValue">${data.statuses[status] || 0}</div></div>`;
+      }).join('');
+      document.getElementById('dashboardBody').innerHTML = `
+        <div class="cards">
+          <div class="card"><div class="cardLabel">طلبات اليوم</div><div class="cardValue">${data.todayCount}</div></div>
+          <div class="card"><div class="cardLabel">قيمة اليوم</div><div class="cardValue">${money(data.todayTotal)}</div></div>
+          ${statusCards}
+        </div>`;
+    }).catch(showError);
+  }
+
+  function renderOrders() {
+    const createButton = currentUser.role === 'Sales Employee' ? '' : '<button class="primary" onclick="openOrderModal()">+ طلب جديد</button>';
+    setPage(`
+      <div class="topbar"><h1>Orders Board</h1>${createButton}</div>
+      <section class="panel">
+        <div class="toolbar">
+          <input id="orderSearch" placeholder="بحث: رقم الطلب، العميل، الهاتف، المستلم">
+          <select id="orderStatus"><option value="">كل الحالات</option>${options(ORDER_STATUSES)}</select>
+          <input id="fromDate" type="date">
+          <input id="toDate" type="date">
+          <button onclick="loadOrders()">بحث</button>
+        </div>
+        <div id="ordersTable" class="tableWrap"></div>
+      </section>`);
+    loadOrders();
+  }
+
+  function loadOrders() {
+    const filters = {
+      q: value('orderSearch'),
+      status: value('orderStatus'),
+      from: value('fromDate'),
+      to: value('toDate')
+    };
+    call('getOrders', token, filters).then(function (orders) {
+      document.getElementById('ordersTable').innerHTML = `
+        <table>
+          <thead><tr><th>Order Number</th><th>Customer</th><th>Product</th><th>Delivery Date</th><th>Delivery Time</th><th>Assigned Employee</th><th>Status</th><th>Total</th><th></th></tr></thead>
+          <tbody>${orders.map(orderRow).join('')}</tbody>
+        </table>`;
+    }).catch(showError);
+  }
+
+  function orderRow(order) {
+    return `<tr>
+      <td><strong>${escapeHtml(order['Order Number'])}</strong></td>
+      <td>${escapeHtml(order['Customer Name'])}<br><span class="muted">${escapeHtml(order['Customer Phone'])}</span></td>
+      <td>${escapeHtml(order.Product)}</td>
+      <td>${formatDate(order['Delivery Date'])}</td>
+      <td>${escapeHtml(order['Delivery Time'])}</td>
+      <td>${escapeHtml(order['Assigned Employee'])}</td>
+      <td><span class="badge ${order['Order Status']==='ملغي'?'bad':order['Order Status']==='جاهز'?'ok':'warn'}">${escapeHtml(order['Order Status'])}</span></td>
+      <td>${money(order.Total)}</td>
+      <td><button onclick="openOrder('${escapeAttr(order['Order Number'])}')">فتح</button></td>
+    </tr>`;
+  }
+
+  function openOrder(orderNumber) {
+    call('getOrder', token, orderNumber).then(function (order) {
+      openOrderModal(order);
+    }).catch(showError);
+  }
+
+  function openOrderModal(order) {
+    currentOrder = order || {};
+    const isNew = !currentOrder['Order Number'];
+    const title = isNew ? 'طلب جديد' : 'طلب ' + currentOrder['Order Number'];
+    openModal(`
+      <div class="modalBox">
+        <div class="panelHeader"><h2>${escapeHtml(title)}</h2><button onclick="closeModal()">إغلاق</button></div>
+        <div class="panelBody">
+          <div class="formGrid">
+            ${inputField('Customer Name','اسم العميل')}
+            ${inputField('Customer Phone','هاتف العميل')}
+            ${inputField('Recipient Name','اسم المستلم')}
+            ${inputField('Recipient Phone','هاتف المستلم')}
+            ${selectField('Order Type','نوع الطلب',ORDER_TYPES)}
+            ${inputField('Product','المنتج')}
+            ${inputField('Quantity','الكمية','number')}
+            ${inputField('Size / Persons','الحجم / الأشخاص')}
+            ${textField('Filling','الحشوة')}
+            ${textField('Cake Writing','كتابة الكيك')}
+            ${textField('Add-ons','الإضافات')}
+            ${selectField('Delivery / Pickup','توصيل / استلام',DELIVERY_TYPES)}
+            ${textField('Delivery Address','عنوان التوصيل')}
+            ${inputField('Delivery Fee','رسوم التوصيل','number')}
+            ${inputField('Order Date','تاريخ الطلب','date')}
+            ${inputField('Delivery Date','تاريخ التسليم','date')}
+            ${inputField('Delivery Time','وقت التسليم','time')}
+            ${inputField('Product Price','سعر المنتج','number')}
+            ${selectField('Payment Method','طريقة الدفع',PAYMENT_METHODS)}
+            ${inputField('Paid Amount','المبلغ المدفوع','number')}
+            ${selectField('Payment Status','حالة الدفع',PAYMENT_STATUSES)}
+            ${selectField('Order Status','حالة الطلب',ORDER_STATUSES)}
+            ${inputField('Assigned Employee','الموظف المسؤول')}
+            ${textField('Design Image','رابط صورة التصميم')}
+            ${textField('Notes','ملاحظات','full')}
+          </div>
+          ${isNew ? '' : `<div class="actions">
+            <button onclick="whatsapp('Customer Phone')">WhatsApp Customer</button>
+            <button onclick="whatsapp('Recipient Phone')">WhatsApp Recipient</button>
+            <button onclick="copyConfirmation()">Copy Confirmation</button>
+            ${currentUser.permissions.uploadDesign ? `<label><input id="designFile" type="file" accept="image/*" class="hidden"><button onclick="document.getElementById('designFile').click()">Upload Design</button></label>` : ''}
+          </div>`}
+          <div class="actions">
+            <button class="primary" onclick="saveCurrentOrder()">Save</button>
+            ${isNew ? '' : `<button class="danger" onclick="changeStatus('ملغي')">Cancel Order</button>`}
+          </div>
+        </div>
+      </div>`);
+    const file = document.getElementById('designFile');
+    if (file) file.addEventListener('change', uploadSelectedDesign);
+  }
+
+  function saveCurrentOrder() {
+    const payload = formPayload();
+    if (currentOrder['Order Number']) payload['Order Number'] = currentOrder['Order Number'];
+    if (currentUser.role === 'Sales Employee' && currentOrder['Order Number']) {
+      Promise.all([
+        call('updatePayment', token, currentOrder['Order Number'], payload['Payment Method'], payload['Paid Amount'], payload['Payment Status']),
+        call('updateOrderStatus', token, currentOrder['Order Number'], payload['Order Status'])
+      ]).then(function () {
+        toast('تم حفظ مراجعة المبيعات');
+        closeModal();
+        if (activePage === 'orders') loadOrders();
+      }).catch(showError);
+      return;
+    }
+    call('saveOrder', token, payload).then(function (result) {
+      toast('تم حفظ الطلب ' + result.orderNumber);
+      closeModal();
+      if (activePage === 'orders') loadOrders();
+      if (activePage === 'dashboard') renderDashboard();
+    }).catch(showError);
+  }
+
+  function changeStatus(status) {
+    call('updateOrderStatus', token, currentOrder['Order Number'], status).then(function () {
+      toast('تم تغيير الحالة');
+      closeModal();
+      if (activePage === 'orders') loadOrders();
+    }).catch(showError);
+  }
+
+  function uploadSelectedDesign(event) {
+    const file = event.target.files[0];
+    if (!file || !currentOrder['Order Number']) return;
+    const reader = new FileReader();
+    reader.onload = function () {
+      const base64 = String(reader.result).split(',')[1];
+      call('uploadDesignImage', token, currentOrder['Order Number'], file.name, file.type, base64).then(function (result) {
+        document.querySelector('[data-key="Design Image"]').value = result.url;
+        toast('تم رفع صورة التصميم');
+      }).catch(showError);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function renderCalendar() {
+    const today = new Date().toISOString().slice(0,10);
+    setPage(`
+      <div class="topbar"><h1>Calendar</h1><div><input id="calFrom" type="date" value="${today}"><input id="calTo" type="date" value="${today}"><button onclick="loadCalendar()">عرض</button></div></div>
+      <div id="calendarList" class="calendarList"></div>`);
+    loadCalendar();
+  }
+
+  function loadCalendar() {
+    call('getCalendarOrders', token, value('calFrom'), value('calTo')).then(function (orders) {
+      document.getElementById('calendarList').innerHTML = orders.map(function (order) {
+        return `<button class="calendarItem ${order.state === 'late' ? 'late' : ''}" onclick="openOrder('${escapeAttr(order.orderNumber)}')">
+          <strong>${escapeHtml(order.orderNumber)}</strong><br>
+          ${escapeHtml(order.deliveryDate)} · ${escapeHtml(order.deliveryTime)}<br>
+          ${escapeHtml(order.customerName)}<br>
+          <span class="badge">${escapeHtml(order.status)}</span>
+        </button>`;
+      }).join('') || '<p class="muted">لا توجد طلبات في هذه الفترة.</p>';
+    }).catch(showError);
+  }
+
+  function renderEmployees() {
+    setPage(`<div class="topbar"><h1>الموظفون</h1><button class="primary" onclick="openEmployeeModal()">+ موظف جديد</button></div><div id="employeesTable" class="panel tableWrap"></div>`);
+    call('getEmployees', token).then(function (employees) {
+      document.getElementById('employeesTable').innerHTML = `<table><thead><tr><th>Employee ID</th><th>Name</th><th>Username</th><th>Role</th><th>Active</th><th></th></tr></thead><tbody>${employees.map(function (employee) {
+        return `<tr><td>${escapeHtml(employee['Employee ID'])}</td><td>${escapeHtml(employee['Employee Name'])}</td><td>${escapeHtml(employee.Username)}</td><td>${escapeHtml(employee.Role)}</td><td>${employee.Active ? 'نعم' : 'لا'}</td><td><button onclick='openEmployeeModal(${JSON.stringify(employee)})'>تعديل</button></td></tr>`;
+      }).join('')}</tbody></table>`;
+    }).catch(showError);
+  }
+
+  function openEmployeeModal(employee) {
+    employee = employee || {};
+    openModal(`<div class="modalBox"><div class="panelHeader"><h2>${employee['Employee ID']?'تعديل موظف':'موظف جديد'}</h2><button onclick="closeModal()">إغلاق</button></div><div class="panelBody"><div class="formGrid">
+      ${simpleInput('empId','Employee ID',employee['Employee ID'] || '')}
+      ${simpleInput('empName','Employee Name',employee['Employee Name'] || '')}
+      ${simpleInput('empPhone','Phone',employee.Phone || '')}
+      ${simpleInput('empUsername','Username',employee.Username || '')}
+      ${simpleInput('empPassword',employee['Employee ID']?'Password (optional)':'Password','', 'password')}
+      <div class="field"><label>Role</label><select id="empRole">${options(ROLES, employee.Role)}</select></div>
+      <div class="field"><label>Active</label><select id="empActive"><option value="true">نعم</option><option value="false" ${employee.Active === false ? 'selected' : ''}>لا</option></select></div>
+    </div><div class="actions"><button class="primary" onclick="saveEmployeeUi()">حفظ</button></div></div></div>`);
+  }
+
+  function saveEmployeeUi() {
+    const payload = {employeeId:value('empId'), employeeName:value('empName'), phone:value('empPhone'), username:value('empUsername'), password:value('empPassword'), role:value('empRole'), active:value('empActive') === 'true'};
+    call('saveEmployee', token, payload).then(function () {
+      toast('تم حفظ الموظف');
+      closeModal();
+      renderEmployees();
+    }).catch(showError);
+  }
+
+  function renderReports() {
+    const today = new Date().toISOString().slice(0,10);
+    setPage(`<div class="topbar"><h1>Reports</h1><div><input id="repFrom" type="date" value="${today}"><input id="repTo" type="date" value="${today}"><button onclick="loadReports()">عرض</button></div></div><div id="reportsBody"></div>`);
+    loadReports();
+  }
+
+  function loadReports() {
+    call('getReports', token, {from:value('repFrom'), to:value('repTo')}).then(function (report) {
+      document.getElementById('reportsBody').innerHTML = `
+        <div class="cards"><div class="card"><div class="cardLabel">عدد الطلبات</div><div class="cardValue">${report.totalOrders}</div></div><div class="card"><div class="cardLabel">الإجمالي</div><div class="cardValue">${money(report.totalValue)}</div></div><div class="card"><div class="cardLabel">الملغاة</div><div class="cardValue">${report.cancelled}</div></div></div>
+        ${reportTable('حسب الحالة', report.byStatus)}
+        ${reportTable('حسب الموظف', report.byEmployee)}
+        ${reportTable('طرق الدفع', report.byPaymentMethod)}
+        ${reportTable('حسب المنتج', report.byProduct)}`;
+    }).catch(showError);
+  }
+
+  function renderAudit() {
+    setPage(`<div class="topbar"><h1>AuditLog</h1></div><div id="auditTable" class="panel tableWrap"></div>`);
+    call('getAuditLog', token).then(function (logs) {
+      document.getElementById('auditTable').innerHTML = `<table><thead><tr><th>Order</th><th>Employee</th><th>Action</th><th>Field</th><th>Old</th><th>New</th><th>Time</th></tr></thead><tbody>${logs.map(function (log) {
+        return `<tr><td>${escapeHtml(log['Order Number'])}</td><td>${escapeHtml(log['Employee Name'])}</td><td>${escapeHtml(log.Action)}</td><td>${escapeHtml(log.Field)}</td><td>${escapeHtml(log['Old Value'])}</td><td>${escapeHtml(log['New Value'])}</td><td>${escapeHtml(log.Timestamp)}</td></tr>`;
+      }).join('')}</tbody></table>`;
+    }).catch(showError);
+  }
+
+  function renderSettings() {
+    setPage(`<div class="topbar"><h1>Settings</h1></div><div id="settingsBody" class="panel"><div class="panelBody"></div></div>`);
+    call('getSettingsForAdmin', token).then(function (settings) {
+      document.querySelector('#settingsBody .panelBody').innerHTML = `<div class="formGrid">
+        ${Object.keys(settings).map(function (key) { return simpleInput('set_' + key, key, settings[key]); }).join('')}
+      </div><div class="actions"><button class="primary" onclick="saveSettingsUi()">حفظ</button></div>`;
+    }).catch(showError);
+  }
+
+  function saveSettingsUi() {
+    const payload = {};
+    document.querySelectorAll('[id^="set_"]').forEach(function (input) {
+      payload[input.id.replace('set_', '')] = input.value;
+    });
+    call('saveSettings', token, payload).then(function () { toast('تم حفظ الإعدادات'); }).catch(showError);
+  }
+
+  function copyConfirmation() {
+    call('getConfirmationMessage', token, currentOrder['Order Number']).then(function (result) {
+      navigator.clipboard.writeText(result.message).then(function () {
+        toast('تم نسخ رسالة التأكيد');
+      });
+    }).catch(showError);
+  }
+
+  function whatsapp(field) {
+    const phone = String(document.querySelector(`[data-key="${field}"]`).value || '').replace(/\D/g, '');
+    if (!phone) return showError(new Error('رقم الهاتف غير موجود.'));
+    window.open('https://wa.me/' + phone, '_blank');
+  }
+
+  function logoutUi() {
+    call('logout', token).finally(function () {
+      localStorage.removeItem('delish_token');
+      localStorage.removeItem('delish_user');
+      token = '';
+      currentUser = null;
+      renderLogin();
+    });
+  }
+
+  function inputField(key, label, type) {
+    return `<div class="field"><label>${label}</label><input data-key="${escapeAttr(key)}" type="${type || 'text'}" value="${escapeAttr(currentOrder[key] || '')}"></div>`;
+  }
+  function textField(key, label, extraClass) {
+    return `<div class="field ${extraClass || ''}"><label>${label}</label><textarea data-key="${escapeAttr(key)}">${escapeHtml(currentOrder[key] || '')}</textarea></div>`;
+  }
+  function selectField(key, label, list) {
+    return `<div class="field"><label>${label}</label><select data-key="${escapeAttr(key)}">${options(list, currentOrder[key])}</select></div>`;
+  }
+  function simpleInput(id, label, val, type) {
+    return `<div class="field"><label>${escapeHtml(label)}</label><input id="${escapeAttr(id)}" type="${type || 'text'}" value="${escapeAttr(val || '')}"></div>`;
+  }
+  function formPayload() {
+    const payload = {};
+    document.querySelectorAll('[data-key]').forEach(function (input) {
+      payload[input.dataset.key] = input.value;
+    });
+    return payload;
+  }
+  function options(list, selected) {
+    return list.map(function (item) {
+      return `<option ${String(item) === String(selected || '') ? 'selected' : ''}>${escapeHtml(item)}</option>`;
+    }).join('');
+  }
+  function reportTable(title, rows) {
+    return `<section class="panel"><div class="panelHeader"><h2>${title}</h2></div><div class="tableWrap"><table><thead><tr><th>Key</th><th>Count</th><th>Total</th></tr></thead><tbody>${rows.map(function (row) { return `<tr><td>${escapeHtml(row.key)}</td><td>${row.count}</td><td>${money(row.total)}</td></tr>`; }).join('')}</tbody></table></div></section>`;
+  }
+  function openModal(html) { const modal = document.getElementById('modal'); modal.innerHTML = html; modal.classList.add('open'); }
+  function closeModal() { const modal = document.getElementById('modal'); modal.classList.remove('open'); modal.innerHTML = ''; }
+  function setPage(html) { document.getElementById('page').innerHTML = html; }
+  function value(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+  function money(value) { return Number(value || 0).toFixed(2) + ' ' + (appState && appState.currency ? appState.currency : 'JOD'); }
+  function formatDate(value) { return value ? String(value).slice(0, 10) : ''; }
+  function escapeHtml(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
+  function escapeAttr(value) { return escapeHtml(value).replace(/`/g, '&#096;'); }
+  function toast(message) {
+    const old = document.querySelector('.toast');
+    if (old) old.remove();
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = message;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
+  function showError(error) { toast(error.message || String(error)); }
+  function renderFatal(error) { root.innerHTML = `<section class="loginScreen"><div class="loginBox"><h1>خطأ</h1><p>${escapeHtml(error.message || error)}</p></div></section>`; }
+  function renderLocalPreview() {
+    root.innerHTML = `<section class="loginScreen"><div class="loginBox"><h1>Delish Cake Orders</h1><p class="muted">هذه الملفات مخصصة للعمل داخل Google Apps Script. افتح رابط Web App بدل فتح index.html كملف محلي.</p></div></section>`;
+  }
+</script>

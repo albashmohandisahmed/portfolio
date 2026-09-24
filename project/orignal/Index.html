@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Delish Cake Orders</title>
+  <style>
+    body{margin:0;background:#f7f4f1;color:#201a18;font-family:Arial,Tahoma,sans-serif}
+    .localOnly{min-height:100vh;display:grid;place-items:center;padding:18px}
+    .localBox{width:min(760px,100%);background:#fff;border:1px solid #e8ddd7;border-radius:8px;padding:22px;box-shadow:0 8px 24px rgba(47,30,24,.07)}
+    .localBox h1{margin:0 0 8px;font-size:30px}.localBox p{line-height:1.8}.localBox code{direction:ltr;display:inline-block;background:#fbefe9;padding:2px 6px;border-radius:6px}
+  </style>
+  <?!= include('CSS'); ?>
+</head>
+<body>
+  <div id="app">
+    <section class="localOnly">
+      <div class="localBox">
+        <h1>Delish Cake Orders</h1>
+        <p>هذه واجهة Google Apps Script. التشغيل الحقيقي لا يتم بفتح الملف من الكمبيوتر كـ <code>file://</code>.</p>
+        <p>ارفع ملفات فولدر <code>orignal</code> إلى Apps Script المرتبط بملف Google Sheet، ثم افتح Web App.</p>
+      </div>
+    </section>
+  </div>
+  <?!= include('JavaScript'); ?>
+</body>
+</html>
