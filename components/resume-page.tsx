@@ -146,40 +146,52 @@ export function ResumePageClient() {
           <div className="print-resume-document p-6 sm:p-10 rounded-3xl border border-cyan-400/30 bg-slate-900/90 backdrop-blur-2xl shadow-2xl space-y-8">
             {/* Document Header Bar */}
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 border-b border-white/10 pb-8">
-              <div className="space-y-3">
-                <span className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs font-mono font-bold text-cyan-300 print-badge">
-                  <Sparkles className="h-3.5 w-3.5 print-hide" />
-                  <span>{profile.title}</span>
-                </span>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-5">
+                {/* Profile Photo Avatar in Resume Document */}
+                <div className="relative h-24 w-24 sm:h-28 sm:w-28 shrink-0 rounded-2xl border-2 border-cyan-400/40 bg-slate-900 overflow-hidden shadow-xl print-hide">
+                  <img
+                    src="/ahmed_mohamed.jpeg"
+                    alt={profile.name}
+                    className="h-full w-full object-cover object-top"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 to-transparent" />
+                </div>
 
-                <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                  {profile.name}
-                </h2>
-
-                <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-                  {profile.intro}
-                </p>
-
-                {/* Contact information badges */}
-                <div className="pt-2 flex flex-wrap gap-4 text-xs font-mono text-slate-300">
-                  <span className="flex items-center gap-1.5">
-                    <MapPin className="h-3.5 w-3.5 text-cyan-400 print-hide" />
-                    <span>{profile.location}</span>
+                <div className="space-y-2">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs font-mono font-bold text-cyan-300 print-badge">
+                    <Sparkles className="h-3.5 w-3.5 print-hide" />
+                    <span>{profile.title}</span>
                   </span>
-                  <Link
-                    href={`tel:${profile.phone.replaceAll(" ", "")}`}
-                    className="flex items-center gap-1.5 hover:text-cyan-300 transition"
-                  >
-                    <Phone className="h-3.5 w-3.5 text-cyan-400 print-hide" />
-                    <span>{profile.phone}</span>
-                  </Link>
-                  <Link
-                    href={`mailto:${profile.email}`}
-                    className="flex items-center gap-1.5 hover:text-cyan-300 transition"
-                  >
-                    <Mail className="h-3.5 w-3.5 text-cyan-400 print-hide" />
-                    <span>{profile.email}</span>
-                  </Link>
+
+                  <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                    {profile.name}
+                  </h2>
+
+                  <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
+                    {profile.intro}
+                  </p>
+
+                  {/* Contact information badges */}
+                  <div className="pt-1 flex flex-wrap gap-4 text-xs font-mono text-slate-300">
+                    <span className="flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5 text-cyan-400 print-hide" />
+                      <span>{profile.location}</span>
+                    </span>
+                    <Link
+                      href={`tel:${profile.phone.replaceAll(" ", "")}`}
+                      className="flex items-center gap-1.5 hover:text-cyan-300 transition"
+                    >
+                      <Phone className="h-3.5 w-3.5 text-cyan-400 print-hide" />
+                      <span>{profile.phone}</span>
+                    </Link>
+                    <Link
+                      href={`mailto:${profile.email}`}
+                      className="flex items-center gap-1.5 hover:text-cyan-300 transition"
+                    >
+                      <Mail className="h-3.5 w-3.5 text-cyan-400 print-hide" />
+                      <span>{profile.email}</span>
+                    </Link>
+                  </div>
                 </div>
               </div>
 

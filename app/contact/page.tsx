@@ -158,6 +158,24 @@ export default function ContactPage() {
         <section className="container-shell mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid gap-8 lg:grid-cols-12 items-start">
           {/* Left Contact Details Panel */}
           <SectionReveal className="lg:col-span-5 p-6 sm:p-8 rounded-3xl border border-cyan-400/30 bg-slate-900/80 backdrop-blur-2xl shadow-2xl space-y-6">
+            <div className="flex items-center gap-4 p-3 rounded-2xl border border-white/10 bg-slate-950/70">
+              <div className="relative h-16 w-16 shrink-0 rounded-xl border border-cyan-400/40 overflow-hidden shadow-lg">
+                <img
+                  src="/ahmed_mohamed.jpeg"
+                  alt="Ahmed Mohamed"
+                  className="h-full w-full object-cover object-top"
+                />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">Ahmed Mohamed</h3>
+                <p className="text-xs font-mono text-cyan-300">Data &amp; BI Analyst</p>
+                <span className="inline-flex items-center gap-1.5 text-[0.68rem] font-mono text-emerald-300 mt-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Responds within &lt;24 hours</span>
+                </span>
+              </div>
+            </div>
+
             <div>
               <span className="text-xs font-mono font-bold uppercase tracking-widest text-cyan-400">
                 Direct Contact Channels

@@ -304,7 +304,39 @@ export function AboutPageClient() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-            {/* Left Col: Main Bio Card */}
+            {/* Left Col: Executive Photo & Status Card */}
+            <div className="about-fade-in lg:col-span-5 relative group rounded-3xl border border-cyan-400/30 bg-slate-900/80 backdrop-blur-2xl p-5 shadow-2xl overflow-hidden flex flex-col justify-between">
+              <div className="relative w-full aspect-[4/3.5] rounded-2xl overflow-hidden border border-cyan-400/20 shadow-xl">
+                <img
+                  src="/ahmed_mohamed.jpeg"
+                  alt="Ahmed Mohamed Abd El Hamid - Data & BI Analyst"
+                  className="h-full w-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
+                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-slate-950/90 px-3 py-1 text-[0.7rem] font-mono text-emerald-300 backdrop-blur-md">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                    <span>Open to BI &amp; Analyst Roles</span>
+                  </span>
+                  <span className="text-[0.68rem] font-mono text-cyan-300 bg-slate-950/90 px-2.5 py-1 rounded-full border border-cyan-400/30">
+                    Cairo, Egypt
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-4 space-y-2">
+                <h3 className="text-xl font-bold text-white">Ahmed Mohamed Abd El Hamid</h3>
+                <p className="text-xs font-mono text-cyan-300">B.Sc. Computer Science (Honors) · Data &amp; BI Analyst</p>
+                <div className="pt-2 flex flex-wrap gap-2 text-xs">
+                  <span className="px-2.5 py-1 rounded-lg border border-white/10 bg-white/5 text-slate-300 font-mono">Power BI</span>
+                  <span className="px-2.5 py-1 rounded-lg border border-white/10 bg-white/5 text-slate-300 font-mono">SQL</span>
+                  <span className="px-2.5 py-1 rounded-lg border border-white/10 bg-white/5 text-slate-300 font-mono">Python</span>
+                  <span className="px-2.5 py-1 rounded-lg border border-white/10 bg-white/5 text-slate-300 font-mono">Tableau</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Col: Main Bio & Core Snapshot */}
             <div className="about-fade-in lg:col-span-7 flex flex-col justify-between p-6 sm:p-8 rounded-3xl border border-cyan-400/30 bg-slate-900/80 backdrop-blur-2xl shadow-2xl space-y-6">
               <div className="space-y-4">
                 <div className="flex items-center gap-3 p-4 rounded-2xl border-l-4 border-cyan-400 bg-cyan-400/10 text-cyan-200 text-sm sm:text-base font-semibold italic">
@@ -342,34 +374,6 @@ export function AboutPageClient() {
                   <span>Certifications: 6 Professional Certificates</span>
                 </div>
               </div>
-            </div>
-
-            {/* Right Col: 4 Strengths Grid */}
-            <div className="lg:col-span-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-              {coreStrengths.map((s) => {
-                const Icon = s.icon;
-                return (
-                  <div
-                    key={s.title}
-                    className={`about-fade-in p-5 rounded-2xl border border-white/10 bg-gradient-to-r ${s.glow} bg-slate-900/80 backdrop-blur-xl shadow-xl hover:border-cyan-400/40 transition-all flex items-start gap-4`}
-                  >
-                    <div
-                      className="p-3 rounded-xl border border-white/10 flex-shrink-0"
-                      style={{ color: s.color, backgroundColor: `${s.color}15` }}
-                    >
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-bold text-white leading-snug">
-                        {s.title}
-                      </h3>
-                      <p className="mt-1 text-xs text-slate-300 leading-relaxed">
-                        {s.desc}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
             </div>
           </div>
         </section>
