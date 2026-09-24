@@ -40,6 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# standalone project repositories
-projects/
+# standalone project repositories (root-level only, not app/projects/)
+/projects/
 
