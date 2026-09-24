@@ -95,11 +95,12 @@ export function Navigation() {
               />
             </div>
 
-            <span className="leading-tight">
-              <span className="block text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
-                {profile.name}
+            <span className="leading-tight min-w-0 overflow-hidden">
+              <span className="block text-sm font-bold text-white group-hover:text-cyan-300 transition-colors truncate max-w-[140px] xs:max-w-[200px] sm:max-w-none">
+                <span className="hidden sm:inline">{profile.name}</span>
+                <span className="sm:hidden">Ahmed Mohamed</span>
               </span>
-              <span className="block font-mono text-[10px] sm:text-[11px] uppercase tracking-[.18em] text-cyan-200/80">
+              <span className="block font-mono text-[9px] sm:text-[11px] uppercase tracking-[.15em] text-cyan-200/80 truncate">
                 Data &amp; BI Analyst
               </span>
             </span>
