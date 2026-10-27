@@ -219,7 +219,7 @@ export function AboutPageClient() {
   ];
 
   return (
-    <PageVideoShell poster="/10-about-me.jpg" video="/videos/About.mp4">
+    <PageVideoShell>
       <div ref={containerRef} className="relative w-full pt-28 pb-24 overflow-hidden">
         {/* Background Ambient Glows */}
         <div

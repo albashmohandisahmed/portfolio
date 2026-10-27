@@ -122,7 +122,7 @@ export function ExperiencePageClient() {
   }, [activeTab, searchQuery]);
 
   return (
-    <PageVideoShell poster="/07-experience-skills.jpg" video="/videos/Experience.mp4">
+    <PageVideoShell>
       <div className="relative w-full pt-28 pb-24 overflow-hidden">
         {/* Background Ambient Glows */}
         <div

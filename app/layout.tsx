@@ -91,16 +91,23 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="icon" href="/ahmed.jpeg" sizes="any" />
         <link rel="apple-touch-icon" href="/ahmed.jpeg" />
       </head>
-      <body className="min-h-full">
+      <body className="min-h-full bg-[#0a0e16] text-[#eef7ff] relative">
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-ion focus:px-4 focus:py-2 focus:text-black"
         >
           Skip to content
         </a>
+
+        {/* Ambient Twinkling Cosmic Stars Background (Universal across entire portfolio) */}
+        <div className="cosmos" aria-hidden="true">
+          <div className="stars" />
+          <div className="stars layer2" />
+        </div>
+
         <CursorGlow />
         <Navigation />
-        <main id="main">{children}</main>
+        <main id="main" className="relative z-10">{children}</main>
         <Footer />
         <div className="noise" aria-hidden="true" />
       </body>

@@ -14,7 +14,6 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
-import { ContactBackground } from "@/components/contact-background";
 import { ContactForm } from "@/components/contact-form";
 import { PageVideoShell } from "@/components/page-video-shell";
 import { SectionReveal } from "@/components/section-reveal";
@@ -102,9 +101,8 @@ export default function ContactPage() {
   ];
 
   return (
-    <PageVideoShell poster="/11-contact.jpg" video="/videos/Contact.mp4">
-      <ContactBackground />
-      <div className="relative w-full pt-28 pb-24 overflow-hidden">
+    <PageVideoShell>
+            <div className="relative w-full pt-28 pb-24 overflow-hidden">
         {/* Ambient Glow */}
         <div
           className="pointer-events-none absolute top-20 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-cyan-500/10 blur-[150px] -z-10"

@@ -136,7 +136,7 @@ export function SkillsPageClient() {
   ];
 
   return (
-    <PageVideoShell poster="/07-experience-skills.jpg" video="/videos/Skills.mp4">
+    <PageVideoShell>
       <div className="relative w-full pt-28 pb-24 overflow-hidden">
         {/* Ambient Glow Orbs */}
         <div

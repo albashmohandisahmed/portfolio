@@ -83,10 +83,7 @@ export function ResumePageClient() {
   }
 
   return (
-    <PageVideoShell
-      poster="/06-education-certifications.jpg"
-      video="/videos/Resume.mp4"
-    >
+    <PageVideoShell>
       <div className="relative w-full pt-28 pb-24 overflow-hidden">
         {/* Ambient Glow */}
         <div

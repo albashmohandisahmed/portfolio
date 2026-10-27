@@ -163,7 +163,7 @@ export function LabPageClient() {
   }, [activeTool, searchQuery]);
 
   return (
-    <PageVideoShell poster="/02-data-science.jpg" video="/videos/Lab.mp4">
+    <PageVideoShell>
       <div className="relative w-full pt-28 pb-24 overflow-hidden">
         {/* Ambient Glows */}
         <div

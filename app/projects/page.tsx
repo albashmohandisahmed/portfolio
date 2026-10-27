@@ -54,11 +54,7 @@ export default function ProjectsPage() {
   const pdfReportsCount = projects.filter((p) => p.reportUrl).length;
 
   return (
-    <PageVideoShell
-      className="projects-index-shell"
-      poster="/05-featured-projects.jpg"
-      video="/videos/Projects.mp4"
-    >
+    <PageVideoShell className="projects-index-shell">
       {/* Top Header Banner */}
       <section className="container-shell mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-28 pb-12 text-center flex flex-col items-center">
         <div className="mb-4">

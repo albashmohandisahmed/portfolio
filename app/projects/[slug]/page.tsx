@@ -76,7 +76,7 @@ export default async function ProjectDetailPage({ params }: Props) {
   ];
 
   return (
-    <PageVideoShell poster="/05-featured-projects.jpg" video="/videos/Projects.mp4">
+    <PageVideoShell>
       <div className="relative w-full pt-28 pb-24">
         {/* Top Back Link + Hero Header */}
         <section className="container-shell mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-12">

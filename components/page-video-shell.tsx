@@ -1,13 +1,13 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 
 type PageVideoShellProps = {
   children: React.ReactNode;
   className?: string;
-  poster: string;
-  video: string;
+  poster?: string;
+  video?: string;
 };
 
 export function PageVideoShell({ children, className = "", poster, video }: PageVideoShellProps) {
@@ -17,9 +17,10 @@ export function PageVideoShell({ children, className = "", poster, video }: Page
 
   // Show button after a short delay so it doesn't flash on load
   useEffect(() => {
+    if (!video) return;
     const t = setTimeout(() => setVisible(true), 800);
     return () => clearTimeout(t);
-  }, []);
+  }, [video]);
 
   const toggle = () => {
     const vid = videoRef.current;
@@ -32,6 +33,15 @@ export function PageVideoShell({ children, className = "", poster, video }: Page
     }
     setMuted(next);
   };
+
+  // If no video prop is provided, render clean cosmic page shell without video
+  if (!video) {
+    return (
+      <div className={`page-video-shell min-h-screen relative overflow-hidden ${className}`}>
+        <div className="page-video-content relative z-10">{children}</div>
+      </div>
+    );
+  }
 
   return (
     <div className={`page-video-shell ${className}`}>
@@ -51,7 +61,7 @@ export function PageVideoShell({ children, className = "", poster, video }: Page
         <div className="page-video-scrim" />
       </div>
 
-      {/* Mute / Unmute Button */}
+      {/* Mute / Unmute Button (only when video is present) */}
       <button
         onClick={toggle}
         aria-label={muted ? "Unmute background video" : "Mute background video"}
@@ -67,7 +77,6 @@ export function PageVideoShell({ children, className = "", poster, video }: Page
         ) : (
           <Volume2 className="h-5 w-5 text-cyan-300 animate-pulse" />
         )}
-        {/* Tooltip */}
         <span className="pointer-events-none absolute right-14 whitespace-nowrap rounded-lg border border-white/10 bg-slate-900/90 px-3 py-1 text-xs font-mono text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg backdrop-blur-md">
           {muted ? "Unmute video" : "Mute video"}
         </span>
